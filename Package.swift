@@ -3,19 +3,29 @@
 import PackageDescription
 
 let package = Package(
-    name: "Msg2swift",
+    name: "msg2swift",
     products: [
-        .executable(name: "msg2swift", targets: ["Msg2swift"]),
+        .executable(name: "msg2swift", targets: ["msg2swift"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
+        .package(url: "https://github.com/DimaRU/PackageBuildInfo", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
     ],
     targets: [
         .executableTarget(
-            name: "Msg2swift",
+            name: "msg2swift",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
+            ],
+            plugins: [
+                .plugin(name: "PackageBuildInfoPlugin", package: "PackageBuildInfo")
             ]
+        ),
+        .testTarget(
+            name: "msg2swiftTests",
+            dependencies: ["msg2swift"]
         ),
     ]
 )
