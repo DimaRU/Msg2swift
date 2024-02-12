@@ -42,8 +42,6 @@ struct SwiftGenerator {
         var comment: Substring
     }
     
-    var parsed: [Parsedline] = []
-
     private let propertyDeclaration: PropertyDeclaration
     private let objectDeclaration: ObjectDeclaration
     private let declarationSuffix: DeclarationSuffix
@@ -107,7 +105,7 @@ struct SwiftGenerator {
         return try parseField(line: line)
     }
     
-    func parse(line: Substring) throws -> Parsedline {
+    private func parse(line: Substring) throws -> Parsedline {
         var parsed = Parsedline(leadingSpace: "", definition: .empty, trailingSpace: "", comment: "")
         guard 
             let startNonLeading = line.firstIndex(where: {!$0.isWhitespace})
@@ -125,16 +123,23 @@ struct SwiftGenerator {
         return parsed
     }
     
-    mutating func generateSwiftModel(name: String, messageText: String) throws -> String {
-        
-        
+    func parseMessageText(_ messageText: String) throws -> [Parsedline] {
         let messageLines = messageText.split(separator: "\n").map{ $0.trimmingSuffix(while: \.isWhitespace) }
-        parsed = try messageLines.map(parse(line:))
+        return try messageLines.map(parse(line:))
         
+    }
+
+    func generateSwiftModel(name: String, parsed: [Parsedline]) throws -> String {
         return """
 \(objectDeclaration.rawValue) \(name): \(declarationSuffix.rawValue) {
     \(propertyDeclaration.rawValue) i: Int8
 }
 """
     }
+
+    func processFile(name: String, messageText: String) throws -> String {
+        let parsed = try parseMessageText(messageText)
+        return try generateSwiftModel(name: name, parsed: parsed)
+    }
+   
 }

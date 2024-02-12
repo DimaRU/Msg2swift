@@ -28,14 +28,12 @@ string EXAMPLE='bar'
 """
 
     func testGenerator() throws {
-        var generator = SwiftGenerator(propertyDeclaration: .let,
+        let generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .class,
                                        declarationSuffix: .codable,
                                        snakeCase: true)
             
-        let messageLines = messageText.split(separator: "\n").map{ $0.trimmingSuffix(while: \.isWhitespace) }
-        let parsed = try messageLines.map(generator.parse(line:))
-
+        let parsed = try generator.parseMessageText(messageText)
         let preparsed: [SwiftGenerator.Parsedline] = [
             SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "int32", arrayCount: Optional(0), name: "unbounded_integer_array", defaultValue: ""), trailingSpace: "          ", comment: "# comment"),
             SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "int32", arrayCount: Optional(5), name: "five_integers_array", defaultValue: ""), trailingSpace: "", comment: ""),
@@ -54,7 +52,6 @@ string EXAMPLE='bar'
             SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.constant(type: "string", name: "FOO", value: "\"foo\""), trailingSpace: "", comment: ""),
             SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.constant(type: "string", name: "EXAMPLE", value: "\'bar\'"), trailingSpace: "", comment: ""),
         ]
-//        parsed.forEach{ print($0) }
         XCTAssertEqual(parsed, preparsed)
     }
 }

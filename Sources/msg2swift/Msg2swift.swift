@@ -73,7 +73,7 @@ struct Msg2swift: ParsableCommand {
             let messageText = try String(contentsOf: url)
             let name = name ?? url.deletingPathExtension().lastPathComponent
             
-            let model = try generator.generateSwiftModel(name: name, messageText: messageText)
+            let model = try generator.processFile(name: name, messageText: messageText)
             
             let outputDirectory = outputDirectory ?? url.deletingLastPathComponent().path
             let outputURL = URL(fileURLWithPath: outputDirectory).appendingPathComponent(name).appendingPathExtension("swift")
