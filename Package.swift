@@ -1,9 +1,10 @@
-// swift-tools-version: 5.6
+// swift-tools-version: 5.9
 
 import PackageDescription
 
 let package = Package(
     name: "msg2swift",
+    platforms: [.macOS(.v13)],
     products: [
         .executable(name: "msg2swift", targets: ["msg2swift"]),
     ],
