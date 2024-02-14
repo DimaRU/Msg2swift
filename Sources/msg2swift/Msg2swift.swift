@@ -69,12 +69,12 @@ struct Msg2swift: ParsableCommand {
     var outputDirectory: String?
 
     mutating func run() throws {
-        var generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
-                                       objectDeclaration: objectDeclaration,
-                                       declarationSuffix: declarationSuffix,
-                                       snakeCase: snakeCase,
-                                       compact: compact)
         for url in file {
+            var generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
+                                           objectDeclaration: objectDeclaration,
+                                           declarationSuffix: declarationSuffix,
+                                           snakeCase: snakeCase,
+                                           compact: compact)
             let messageText = try String(contentsOf: url)
             let name = name ?? url.deletingPathExtension().lastPathComponent
             

@@ -290,13 +290,26 @@ struct SwiftGenerator {
                 parsed[i].name = translate(name: parsed[i].name)
             case .enumcase(type: let type, enum: let `enum`, value: let value):
                 parsed[i].type = translate(type: parsed[i].type, arrayCount: nil)
-                parsed[i].name = translate(name: parsed[i].name)
+                parsed[i].name = translate(name: parsed[i].name.lowercased())
                 if snakeCase {
-                    let translated = convertFromSnakeCase(`enum`).capitalized
+                    let translated = convertFromSnakeCase(`enum`.lowercased()).firstUppercased
                     parsed[i].definition = .enumcase(type: type, enum: translated, value: value)
                 }
             case .empty:
                 break
+            }
+        }
+        
+        // Try to fix type names for enums
+        var enumDict: [String: String] = [:]
+        parsed.forEach {
+            if case .enumcase(type: _, enum: let `enum`, value: _) = $0.definition {
+                enumDict[`enum`] = $0.type
+            }
+        }
+        for i in parsed.indices {
+            if case .field = parsed[i].definition, enumDict[parsed[i].name.firstUppercased] == parsed[i].type {
+                parsed[i].type = parsed[i].name.firstUppercased
             }
         }
     }
@@ -333,11 +346,14 @@ struct SwiftGenerator {
             let line: String
             switch p.definition {
             case .empty:
+                checkEmitCloseEnum()
                 guard !compact else { continue }
                 line = ""
             case .field:
+                checkEmitCloseEnum()
                 line = "\(propertyDeclaration) \(p.name): \(p.type)"
             case .constant(type: _, name: _, value: let value):
+                checkEmitCloseEnum()
                 line = "static let \(p.name): \(p.type) = \(value)"
             case .enumcase(type: _, enum: let `enum`, value: let value):
                 if currentEnumName != `enum` {
