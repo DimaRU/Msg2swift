@@ -82,6 +82,7 @@ struct SwiftGenerator {
     
     var parsed: [Parsedline] = []
     var keyList: [(name: String, count: Int)] = []
+    var needCodableKeys = false
     private let propertyDeclaration: PropertyDeclaration
     private let objectDeclaration: ObjectDeclaration
     private let declarationSuffix: DeclarationSuffix
@@ -306,6 +307,7 @@ struct SwiftGenerator {
             }
             if let arrayCount, arrayCount > 0 {
                 keyList.append((name: line.name, count: arrayCount << 16 + count))
+                needCodableKeys = true
             } else {
                 keyList.append((name: line.name, count: count))
             }
@@ -314,16 +316,54 @@ struct SwiftGenerator {
     }
     
     mutating func generateSwiftModel(name: String) -> String {
-        // Emit file heap
+        var lines: [String] = []
+        var currentEnumName = ""
+        
+        func checkEmitCloseEnum() {
+            guard !currentEnumName.isEmpty else { return }
+            lines.append("    }")
+            currentEnumName = ""
+        }
         // Emit declaration open
-        // Emit enums
+        lines.append("\(objectDeclaration.rawValue) \(name): \(declarationSuffix.rawValue) {")
         // Emit body
+        for p in parsed {
+            let line: String
+            switch p.definition {
+            case .empty:
+                line = "\(p.leading)"
+            case .field:
+                line = "\(p.leading)\(propertyDeclaration) \(p.name): \(p.type)"
+            case .constant(type: _, name: _, value: let value):
+                line = "\(p.leading)static let \(p.name): \(p.type) = \(value)"
+            case .enumcase(type: _, enum: let `enum`, value: let value):
+                if currentEnumName != `enum` {
+                    checkEmitCloseEnum()
+                    currentEnumName = `enum`
+                    lines.append("    enum \(`enum`): \(p.type), \(declarationSuffix.rawValue) {")
+                }
+                line = "    case \(p.name) = \(value)"
+            }
+            lines.append("    " + line + p.trailing + p.comment)
+        }
+        
         // Emit codable keys, if need
+        if needCodableKeys {
+            lines.append("")
+            lines.append("    enum CodingKeys: Int, CodingKey {")
+            for (name, count) in keyList {
+                if count < 100 {
+                    lines.append("        case \(name) = \(count)")
+                } else {
+                    lines.append("        case \(name) = 0x\(String(count, radix: 16))")
+                }
+            }
+            lines.append("    }")
+        }
         // Emit declaration close "}"
-        return """
-\(objectDeclaration.rawValue) \(name): \(declarationSuffix.rawValue) {
-}
-"""
+        lines.append("}")
+        lines.append("")
+        return lines.joined(separator: "\n")
     }
 
     mutating func processFile(name: String, messageText: String) throws -> String {
