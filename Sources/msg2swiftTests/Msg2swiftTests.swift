@@ -95,7 +95,6 @@ uint8 field
                                        compact: false)
         
         generator.parsed = try generator.parseMessageText(messageTextEnum)
-        let _ = generator.generateSwiftModel(name: "TestModel")
         generator.markEnums()
         let preparsed: [SwiftGenerator.Parsedline] = [
             .init(leading: "", definition: .empty, trailing: "", comment: "# Power supply status constants", type: "", name: ""),
@@ -127,4 +126,66 @@ uint8 field
         ]
         XCTAssertEqual(generator.parsed, preparsed)
     }
+    
+    func testParams() throws {
+        let message = """
+# Comment
+float32 field_test # comment2
+"""
+        var generator = SwiftGenerator(propertyDeclaration: .let,
+                                       objectDeclaration: .struct,
+                                       declarationSuffix: .codable,
+                                       snakeCase: true,
+                                       compact: false)
+        var code = try generator.processFile(name: "TestModel", messageText: message)
+        XCTAssertEqual(code, """
+struct TestModel: Codable {
+    // Comment
+    let fieldTest: Float // comment2
+}
+
+""")
+
+
+        generator = SwiftGenerator(propertyDeclaration: .var,
+                                       objectDeclaration: .class,
+                                       declarationSuffix: .encodable,
+                                       snakeCase: true,
+                                       compact: true)
+        code = try generator.processFile(name: "TestModel", messageText: message)
+        XCTAssertEqual(code, """
+class TestModel: Encodable {
+    var fieldTest: Float
+}
+
+""")
+
+        generator = SwiftGenerator(propertyDeclaration: .var,
+                                       objectDeclaration: .class,
+                                       declarationSuffix: .decodable,
+                                       snakeCase: true,
+                                       compact: true)
+        code = try generator.processFile(name: "TestModel", messageText: message)
+        XCTAssertEqual(code, """
+class TestModel: Decodable {
+    var fieldTest: Float
+}
+
+""")
+
+        generator = SwiftGenerator(propertyDeclaration: .let,
+                                       objectDeclaration: .class,
+                                       declarationSuffix: .codable,
+                                       snakeCase: false,
+                                       compact: true)
+        code = try generator.processFile(name: "TestModel", messageText: message)
+        XCTAssertEqual(code, """
+class TestModel: Codable {
+    let field_test: Float
+}
+
+""")
+
+    }
+
 }
