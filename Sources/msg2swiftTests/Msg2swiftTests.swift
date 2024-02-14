@@ -26,7 +26,38 @@ int32 Y = -123
 string FOO  =   "foo"
 string EXAMPLE='bar'
 """
+    let messageTextEnum = """
+# Power supply status constants
+uint8 POWER_SUPPLY_STATUS_UNKNOWN = 0
+uint8 POWER_SUPPLY_STATUS_CHARGING = 1
+uint8 POWER_SUPPLY_STATUS_DISCHARGING = 2
+uint8 POWER_SUPPLY_STATUS_NOT_CHARGING = 3
+uint8 POWER_SUPPLY_STATUS_FULL = 4
 
+# Power supply health constants
+uint8 POWER_SUPPLY_HEALTH_UNKNOWN = 0
+uint8 POWER_SUPPLY_HEALTH_GOOD = 1
+uint8 POWER_SUPPLY_HEALTH_OVERHEAT = 2
+uint8 POWER_SUPPLY_HEALTH_DEAD = 3
+uint8 POWER_SUPPLY_HEALTH_OVERVOLTAGE = 4
+uint8 POWER_SUPPLY_HEALTH_UNSPEC_FAILURE = 5
+uint8 POWER_SUPPLY_HEALTH_COLD = 6
+uint8 POWER_SUPPLY_HEALTH_WATCHDOG_TIMER_EXPIRE = 7
+uint8 POWER_SUPPLY_HEALTH_SAFETY_TIMER_EXPIRE = 8
+
+# Power supply technology (chemistry) constants
+uint8 POWER_SUPPLY_TECHNOLOGY_UNKNOWN = 0
+uint8 POWER_SUPPLY_TECHNOLOGY_NIMH = 1
+uint8 POWER_SUPPLY_TECHNOLOGY_LION = 2
+uint8 POWER_SUPPLY_TECHNOLOGY_LIPO = 3
+uint8 POWER_SUPPLY_TECHNOLOGY_LIFE = 4
+uint8 POWER_SUPPLY_TECHNOLOGY_NICD = 5
+uint8 POWER_SUPPLY_TECHNOLOGY_LIMN = 6
+uint8 SOME_CONST = 6
+uint8 field
+"""
+    
+    
     func testGenerator() throws {
         let generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .class,
@@ -35,23 +66,63 @@ string EXAMPLE='bar'
             
         let parsed = try generator.parseMessageText(messageText)
         let preparsed: [SwiftGenerator.Parsedline] = [
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "int32", arrayCount: Optional(0), name: "unbounded_integer_array", defaultValue: ""), trailingSpace: "          ", comment: "# comment"),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "int32", arrayCount: Optional(5), name: "five_integers_array", defaultValue: ""), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "   ", definition: SwiftGenerator.DefinitionType.field(type: "int32", arrayCount: Optional(0), name: "up_to_five_integers_array", defaultValue: ""), trailingSpace: "  ", comment: "# comment"),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "string", arrayCount: nil, name: "string_of_unbounded_size", defaultValue: ""), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "string", arrayCount: nil, name: "up_to_ten_characters_string", defaultValue: ""), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "string", arrayCount: Optional(0), name: "up_to_five_unbounded_strings", defaultValue: ""), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "string", arrayCount: Optional(0), name: "unbounded_array_of_strings_up_to_ten_characters_each", defaultValue: ""), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "string", arrayCount: Optional(0), name: "up_to_five_strings_up_to_ten_characters_each", defaultValue: ""), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "uint8", arrayCount: nil, name: "x", defaultValue: "42"), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "int16", arrayCount: nil, name: "y", defaultValue: "-2000"), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "string", arrayCount: nil, name: "full_name", defaultValue: "\"John Doe\""), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.field(type: "int32", arrayCount: Optional(0), name: "samples", defaultValue: "[-200, -100, 0, 100, 200]"), trailingSpace: "", comment: "#comment"),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.constant(type: "int32", name: "X", value: "123"), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.constant(type: "int32", name: "Y", value: "-123"), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.constant(type: "string", name: "FOO", value: "\"foo\""), trailingSpace: "", comment: ""),
-            SwiftGenerator.Parsedline(leadingSpace: "", definition: SwiftGenerator.DefinitionType.constant(type: "string", name: "EXAMPLE", value: "\'bar\'"), trailingSpace: "", comment: ""),
+            .init(leading: "", definition: .field(type: "int32", name: "unbounded_integer_array", arrayCount: Optional(0), defaultValue: ""), trailing: "          ", comment: "# comment"),
+            .init(leading: "", definition: .field(type: "int32", name: "five_integers_array", arrayCount: Optional(5), defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "   ", definition: .field(type: "int32", name: "up_to_five_integers_array", arrayCount: Optional(0), defaultValue: ""), trailing: "  ", comment: "# comment"),
+            .init(leading: "", definition: .field(type: "string", name: "string_of_unbounded_size", arrayCount: nil, defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "string", name: "up_to_ten_characters_string", arrayCount: nil, defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "string", name: "up_to_five_unbounded_strings", arrayCount: Optional(0), defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "string", name: "unbounded_array_of_strings_up_to_ten_characters_each", arrayCount: Optional(0), defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "string", name: "up_to_five_strings_up_to_ten_characters_each", arrayCount: Optional(0), defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "uint8", name: "x", arrayCount: nil, defaultValue: "42"), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "int16", name: "y", arrayCount: nil, defaultValue: "-2000"), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "string", name: "full_name", arrayCount: nil, defaultValue: "\"John Doe\""), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "int32", name: "samples", arrayCount: Optional(0), defaultValue: "[-200, -100, 0, 100, 200]"), trailing: "", comment: "#comment"),
+            .init(leading: "", definition: .constant(type: "int32", name: "X", value: "123"), trailing: "", comment: ""),
+            .init(leading: "", definition: .constant(type: "int32", name: "Y", value: "-123"), trailing: "", comment: ""),
+            .init(leading: "", definition: .constant(type: "string", name: "FOO", value: "\"foo\""), trailing: "", comment: ""),
+            .init(leading: "", definition: .constant(type: "string", name: "EXAMPLE", value: "\'bar\'"), trailing: "", comment: ""),
         ]
         XCTAssertEqual(parsed, preparsed)
+    }
+    
+    func testMarkEnum() throws {
+        var generator = SwiftGenerator(propertyDeclaration: .let,
+                                       objectDeclaration: .class,
+                                       declarationSuffix: .codable,
+                                       snakeCase: true)
+        
+        generator.parsed = try generator.parseMessageText(messageTextEnum)
+        let _ = generator.generateSwiftModel(name: "TestModel")
+        generator.markEnums()
+        let preparsed: [SwiftGenerator.Parsedline] = [
+            .init(leading: "", definition: .empty, trailing: "", comment: "# Power supply status constants", type: "", name: ""),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_STATUS", value: "0"), trailing: "", comment: "", type: "uint8", name: "UNKNOWN"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_STATUS", value: "1"), trailing: "", comment: "", type: "uint8", name: "CHARGING"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_STATUS", value: "2"), trailing: "", comment: "", type: "uint8", name: "DISCHARGING"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_STATUS", value: "3"), trailing: "", comment: "", type: "uint8", name: "NOT_CHARGING"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_STATUS", value: "4"), trailing: "", comment: "", type: "uint8", name: "FULL"),
+            .init(leading: "", definition: .empty, trailing: "", comment: "# Power supply health constants", type: "", name: ""),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_HEALTH", value: "0"), trailing: "", comment: "", type: "uint8", name: "UNKNOWN"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_HEALTH", value: "1"), trailing: "", comment: "", type: "uint8", name: "GOOD"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_HEALTH", value: "2"), trailing: "", comment: "", type: "uint8", name: "OVERHEAT"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_HEALTH", value: "3"), trailing: "", comment: "", type: "uint8", name: "DEAD"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_HEALTH", value: "4"), trailing: "", comment: "", type: "uint8", name: "OVERVOLTAGE"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_HEALTH", value: "5"), trailing: "", comment: "", type: "uint8", name: "UNSPEC_FAILURE"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_HEALTH", value: "6"), trailing: "", comment: "", type: "uint8", name: "COLD"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_HEALTH", value: "7"), trailing: "", comment: "", type: "uint8", name: "WATCHDOG_TIMER_EXPIRE"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_HEALTH", value: "8"), trailing: "", comment: "", type: "uint8", name: "SAFETY_TIMER_EXPIRE"),
+            .init(leading: "", definition: .empty, trailing: "", comment: "# Power supply technology (chemistry) constants", type: "", name: ""),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_TECHNOLOGY", value: "0"), trailing: "", comment: "", type: "uint8", name: "UNKNOWN"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_TECHNOLOGY", value: "1"), trailing: "", comment: "", type: "uint8", name: "NIMH"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_TECHNOLOGY", value: "2"), trailing: "", comment: "", type: "uint8", name: "LION"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_TECHNOLOGY", value: "3"), trailing: "", comment: "", type: "uint8", name: "LIPO"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_TECHNOLOGY", value: "4"), trailing: "", comment: "", type: "uint8", name: "LIFE"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_TECHNOLOGY", value: "5"), trailing: "", comment: "", type: "uint8", name: "NICD"),
+            .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_TECHNOLOGY", value: "6"), trailing: "", comment: "", type: "uint8", name: "LIMN"),
+            .init(leading: "", definition: .constant(type: "uint8", name: "SOME_CONST", value: "6"), trailing: "", comment: "", type: "uint8", name: "SOME_CONST"),
+            .init(leading: "", definition: .field(type: "uint8", name: "field", arrayCount: nil, defaultValue: ""), trailing: "", comment: "", type: "uint8", name: "field"),
+        ]
+        XCTAssertEqual(generator.parsed, preparsed)
     }
 }
