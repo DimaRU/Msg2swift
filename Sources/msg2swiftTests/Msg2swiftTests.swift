@@ -62,7 +62,8 @@ uint8 field
         let generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .class,
                                        declarationSuffix: .codable,
-                                       snakeCase: true)
+                                       snakeCase: true,
+                                       compact: false)
             
         let parsed = try generator.parseMessageText(messageText)
         let preparsed: [SwiftGenerator.Parsedline] = [
@@ -90,7 +91,8 @@ uint8 field
         var generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .class,
                                        declarationSuffix: .codable,
-                                       snakeCase: true)
+                                       snakeCase: true, 
+                                       compact: false)
         
         generator.parsed = try generator.parseMessageText(messageTextEnum)
         let _ = generator.generateSwiftModel(name: "TestModel")

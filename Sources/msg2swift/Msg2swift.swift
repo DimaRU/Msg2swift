@@ -29,30 +29,34 @@ struct Msg2swift: ParsableCommand {
         abstract: "Generate Swift codable models from ROS message files.",
         version: PackageBuild.info.describe)
 
-    @Argument(help: ".msg file(s) to compile.", transform: { URL(fileURLWithPath: $0) })
+    @Argument(help: ".msg file(s) to convert.", transform: { URL(fileURLWithPath: $0) })
     var file: [URL]
 
     @Flag(exclusivity: .exclusive,
-          help: ArgumentHelp("Use var or let for object properties."))
+          help: "Use var or let for model properties.")
     var propertyDeclaration: PropertyDeclaration = .let
 
     @Flag(exclusivity: .exclusive,
-          help: ArgumentHelp("Struct or class declaration."))
+          help: "Struct or class declaration.")
     var objectDeclaration: ObjectDeclaration = .struct
 
     @Flag(exclusivity: .exclusive,
-          help: ArgumentHelp("Object declaration suffix."))
+          help: ArgumentHelp("Model declaration suffix."))
     var declarationSuffix: DeclarationSuffix = .codable
     
     @Flag(name: .long,
           inversion: .prefixedNo,
           exclusivity: .chooseLast,
-          help: ArgumentHelp(stringLiteral: #"Convert from "snake_case" to "camelCase""#))
+          help: ArgumentHelp(stringLiteral: #"Convert property name from "snake_case" to "camelCase""#))
     var snakeCase = true
     
     @Flag(name: .shortAndLong, help: "Verbose output")
     var verbose = false
-    
+
+    @Flag(name: .shortAndLong, help: ArgumentHelp("Compact generated code.",
+                                                  discussion: "Strip all comments and remove empty lines."))
+    var compact = false
+
     @Option(name: .shortAndLong,
             help: ArgumentHelp("Object name.",
                                discussion: "By default file name used."))
@@ -68,7 +72,8 @@ struct Msg2swift: ParsableCommand {
         var generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
                                        objectDeclaration: objectDeclaration,
                                        declarationSuffix: declarationSuffix,
-                                       snakeCase: snakeCase)
+                                       snakeCase: snakeCase,
+                                       compact: compact)
         for url in file {
             let messageText = try String(contentsOf: url)
             let name = name ?? url.deletingPathExtension().lastPathComponent

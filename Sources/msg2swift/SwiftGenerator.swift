@@ -87,12 +87,14 @@ struct SwiftGenerator {
     private let objectDeclaration: ObjectDeclaration
     private let declarationSuffix: DeclarationSuffix
     private let snakeCase: Bool
+    private let compact: Bool
 
-    init(propertyDeclaration: PropertyDeclaration, objectDeclaration: ObjectDeclaration, declarationSuffix: DeclarationSuffix, snakeCase: Bool) {
+    init(propertyDeclaration: PropertyDeclaration, objectDeclaration: ObjectDeclaration, declarationSuffix: DeclarationSuffix, snakeCase: Bool, compact: Bool) {
         self.propertyDeclaration = propertyDeclaration
         self.objectDeclaration = objectDeclaration
         self.declarationSuffix = declarationSuffix
         self.snakeCase = snakeCase
+        self.compact = compact
     }
     
     //commonPrefix(with:options:)
@@ -331,11 +333,12 @@ struct SwiftGenerator {
             let line: String
             switch p.definition {
             case .empty:
-                line = "\(p.leading)"
+                guard !compact else { continue }
+                line = ""
             case .field:
-                line = "\(p.leading)\(propertyDeclaration) \(p.name): \(p.type)"
+                line = "\(propertyDeclaration) \(p.name): \(p.type)"
             case .constant(type: _, name: _, value: let value):
-                line = "\(p.leading)static let \(p.name): \(p.type) = \(value)"
+                line = "static let \(p.name): \(p.type) = \(value)"
             case .enumcase(type: _, enum: let `enum`, value: let value):
                 if currentEnumName != `enum` {
                     checkEmitCloseEnum()
@@ -344,7 +347,11 @@ struct SwiftGenerator {
                 }
                 line = "    case \(p.name) = \(value)"
             }
-            lines.append("    " + line + p.trailing + p.comment)
+            if compact {
+                lines.append("    " + line)
+            } else {
+                lines.append("    " + p.leading + line + p.trailing + p.comment)
+            }
         }
         
         // Emit codable keys, if need
