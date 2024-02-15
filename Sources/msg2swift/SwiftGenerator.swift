@@ -104,7 +104,7 @@ struct SwiftGenerator {
         let valueStart = line.index(after: eqIndex)
         let value = line[valueStart..<line.endIndex].trimmingCharacters(in: .whitespaces)
         guard !value.isEmpty
-        else { throw SwiftGeneratorError(message: "Constant expression value is empty") }
+        else { throw SwiftGeneratorError(message: "Empty constant expression value") }
         let parts = line[line.startIndex..<eqIndex]
             .split(separator: #/\s/#, omittingEmptySubsequences: true)
             .map{ String($0) }
@@ -175,6 +175,15 @@ struct SwiftGenerator {
     
     func parseMessageText(_ messageText: String) throws -> [Parsedline] {
         let messageLines = messageText.split(separator: "\n").map{ $0.trimmingSuffix(while: \.isWhitespace) }
+        var parsedLines: [Parsedline] = []
+        for lineCount in messageLines.indices {
+            do {
+                parsedLines.append(try parse(line: messageLines[lineCount]))
+            } catch let error as SwiftGeneratorError {
+                let errorMessage = "\(error.message) at line \(lineCount + 1)"
+                throw SwiftGeneratorError(message: errorMessage)
+            }
+        }
         return try messageLines.map(parse(line:))
     }
     

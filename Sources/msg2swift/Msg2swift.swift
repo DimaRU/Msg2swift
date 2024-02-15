@@ -91,12 +91,7 @@ struct Msg2swift: ParsableCommand {
 
 
 """
-            do {
-                try (header + model).write(to: outputURL, atomically: false, encoding: .utf8)
-            } catch  {
-                print("Write error \(outputURL.absoluteString) \(error.localizedDescription)", to: &stderror)
-                throw ExitCode.failure
-            }
+            try (header + model).write(to: outputURL, atomically: false, encoding: .utf8)
             
             if verbose {
                 print("Created \(outputURL.path)")

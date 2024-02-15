@@ -64,7 +64,7 @@ uint8 field
                                        declarationSuffix: .codable,
                                        snakeCase: true,
                                        compact: false)
-            
+        
         let parsed = try generator.parseMessageText(messageText)
         let preparsed: [SwiftGenerator.Parsedline] = [
             .init(leading: "", definition: .field(type: "int32", name: "unbounded_integer_array", arrayCount: Optional(0), defaultValue: ""), trailing: "          ", comment: "# comment"),
@@ -91,7 +91,7 @@ uint8 field
         var generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .class,
                                        declarationSuffix: .codable,
-                                       snakeCase: true, 
+                                       snakeCase: true,
                                        compact: false)
         
         generator.parsed = try generator.parseMessageText(messageTextEnum)
@@ -145,13 +145,12 @@ struct TestModel: Codable {
 }
 
 """)
-
-
+        
         generator = SwiftGenerator(propertyDeclaration: .var,
-                                       objectDeclaration: .class,
-                                       declarationSuffix: .encodable,
-                                       snakeCase: true,
-                                       compact: true)
+                                   objectDeclaration: .class,
+                                   declarationSuffix: .encodable,
+                                   snakeCase: true,
+                                   compact: true)
         code = try generator.processFile(name: "TestModel", messageText: message)
         XCTAssertEqual(code, """
 class TestModel: Encodable {
@@ -159,12 +158,12 @@ class TestModel: Encodable {
 }
 
 """)
-
+        
         generator = SwiftGenerator(propertyDeclaration: .var,
-                                       objectDeclaration: .class,
-                                       declarationSuffix: .decodable,
-                                       snakeCase: true,
-                                       compact: true)
+                                   objectDeclaration: .class,
+                                   declarationSuffix: .decodable,
+                                   snakeCase: true,
+                                   compact: true)
         code = try generator.processFile(name: "TestModel", messageText: message)
         XCTAssertEqual(code, """
 class TestModel: Decodable {
@@ -172,12 +171,12 @@ class TestModel: Decodable {
 }
 
 """)
-
+        
         generator = SwiftGenerator(propertyDeclaration: .let,
-                                       objectDeclaration: .class,
-                                       declarationSuffix: .codable,
-                                       snakeCase: false,
-                                       compact: true)
+                                   objectDeclaration: .class,
+                                   declarationSuffix: .codable,
+                                   snakeCase: false,
+                                   compact: true)
         code = try generator.processFile(name: "TestModel", messageText: message)
         XCTAssertEqual(code, """
 class TestModel: Codable {
@@ -185,7 +184,26 @@ class TestModel: Codable {
 }
 
 """)
-
+        
     }
-
+    
+    func testErrorMessage() {
+        let messageText = """
+# Comment
+uint8 POWER_SUPPLY_TECHNOLOGY_LIMN =
+"""
+        
+        var generator = SwiftGenerator(propertyDeclaration: .let,
+                                   objectDeclaration: .class,
+                                   declarationSuffix: .codable,
+                                   snakeCase: false,
+                                   compact: true)
+        XCTAssertThrowsError(try generator.processFile(name: "BadFile", messageText: messageText), "Must be error message at line 2") { error in
+            guard let error = error as? SwiftGeneratorError else {
+                XCTFail("Error is't SwiftGeneratorError type")
+                return
+            }
+            XCTAssertEqual(error.message, "Empty constant expression value at line 2")
+        }
+    }
 }
