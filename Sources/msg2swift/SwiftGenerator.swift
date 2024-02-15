@@ -360,17 +360,17 @@ struct SwiftGenerator {
                 line = ""
             case .field:
                 checkEmitCloseEnum()
-                line = "\(propertyDeclaration) \(p.name): \(p.type)"
+                line = "\(propertyDeclaration) \(p.name.quoted): \(p.type)"
             case .constant(type: _, name: _, value: let value):
                 checkEmitCloseEnum()
-                line = "static let \(p.name): \(p.type) = \(value)"
+                line = "static let \(p.name.quoted): \(p.type) = \(value)"
             case .enumcase(type: _, enum: let `enum`, value: let value):
                 if currentEnumName != `enum` {
                     checkEmitCloseEnum()
                     currentEnumName = `enum`
-                    lines.append("    enum \(`enum`): \(p.type), \(declarationSuffix.rawValue) {")
+                    lines.append("    enum \(`enum`.quoted): \(p.type), \(declarationSuffix.rawValue) {")
                 }
-                line = "    case \(p.name) = \(value)"
+                line = "    case \(p.name.quoted) = \(value)"
             }
             if compact {
                 lines.append("    " + line)
@@ -385,9 +385,9 @@ struct SwiftGenerator {
             lines.append("    enum CodingKeys: Int, CodingKey {")
             for (name, count) in keyList {
                 if count < 100 {
-                    lines.append("        case \(name) = \(count)")
+                    lines.append("        case \(name.quoted) = \(count)")
                 } else {
-                    lines.append("        case \(name) = 0x\(String(count, radix: 16))")
+                    lines.append("        case \(name.quoted) = 0x\(String(count, radix: 16))")
                 }
             }
             lines.append("    }")

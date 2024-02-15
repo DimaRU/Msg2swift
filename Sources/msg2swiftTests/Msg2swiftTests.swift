@@ -206,4 +206,26 @@ uint8 POWER_SUPPLY_TECHNOLOGY_LIMN =
             XCTAssertEqual(error.message, "Empty constant expression value at line 2")
         }
     }
+    
+    func testQouted() throws {
+        let messageText = """
+# Comment
+uint8 self
+"""
+        
+        var generator = SwiftGenerator(propertyDeclaration: .let,
+                                   objectDeclaration: .struct,
+                                   declarationSuffix: .codable,
+                                   snakeCase: false,
+                                   compact: true)
+        
+        let code = try generator.processFile(name: "TestModel", messageText: messageText)
+        print(code)
+        XCTAssertEqual(code, """
+struct TestModel: Codable {
+    let `self`: UInt8
+}
+
+""")
+    }
 }
