@@ -220,7 +220,6 @@ uint8 self
                                    compact: true)
         
         let code = try generator.processFile(name: "TestModel", messageText: messageText)
-        print(code)
         XCTAssertEqual(code, """
 struct TestModel: Codable {
     let `self`: UInt8
