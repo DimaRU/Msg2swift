@@ -26,7 +26,11 @@ let package = Package(
         ),
         .testTarget(
             name: "msg2swiftTests",
-            dependencies: ["msg2swift"]
+            dependencies: ["msg2swift"],
+            resources: [
+                .copy("Resource/BatteryState.msg"),
+                .copy("Resource/CameraInfo.msg"),
+            ]
         ),
     ]
 )
