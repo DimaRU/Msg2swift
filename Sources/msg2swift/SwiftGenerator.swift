@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import Algorithms
 
 fileprivate let SwiftBuiltins: [String: String] = [
     "bool"    : "Bool",
@@ -174,7 +173,7 @@ struct SwiftGenerator {
     }
     
     func parseMessageText(_ messageText: String) throws -> [Parsedline] {
-        let messageLines = messageText.split(separator: "\n").map{ $0.trimmingSuffix(while: \.isWhitespace) }
+        let messageLines = messageText.split(separator: "\n").map{ $0.trimmingWhitespace() }
         var parsedLines: [Parsedline] = []
         for lineCount in messageLines.indices {
             do {
