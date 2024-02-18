@@ -1,15 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "packagebuildinfo",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/DimaRU/PackageBuildInfo",
-      "state" : {
-        "revision" : "e61ce060c9a25594db2e1477b7202a4d015e255d",
-        "version" : "1.0.2"
-      }
-    },
-    {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser",

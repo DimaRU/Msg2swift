@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 5.8
 
 import PackageDescription
 
@@ -10,16 +10,12 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
-        .package(url: "https://github.com/DimaRU/PackageBuildInfo", from: "1.0.0"),
     ],
     targets: [
         .executableTarget(
             name: "msg2swift",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            plugins: [
-                .plugin(name: "PackageBuildInfoPlugin", package: "PackageBuildInfo")
             ]
         ),
         .testTarget(
