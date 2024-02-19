@@ -16,7 +16,8 @@ class Msg2swiftTestsFull: XCTestCase {
                                        objectDeclaration: .struct,
                                        declarationSuffix: .codable,
                                        snakeCase: true,
-                                       compact: true)
+                                       compact: true,
+                                       detectEnum: true)
 
         let codeExpected = """
 struct BatteryState: Codable {
@@ -78,7 +79,8 @@ struct BatteryState: Codable {
                                        objectDeclaration: .struct,
                                        declarationSuffix: .codable,
                                        snakeCase: true,
-                                       compact: true)
+                                       compact: true,
+                                       detectEnum: true)
 
         let codeExpected = """
 struct CameraInfo: Codable {

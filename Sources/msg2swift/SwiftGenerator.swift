@@ -87,13 +87,19 @@ struct SwiftGenerator {
     private let declarationSuffix: DeclarationSuffix
     private let snakeCase: Bool
     private let compact: Bool
+    private let detectEnum: Bool
 
-    init(propertyDeclaration: PropertyDeclaration, objectDeclaration: ObjectDeclaration, declarationSuffix: DeclarationSuffix, snakeCase: Bool, compact: Bool) {
+    init(propertyDeclaration: PropertyDeclaration,
+         objectDeclaration: ObjectDeclaration,
+         declarationSuffix: DeclarationSuffix,
+         snakeCase: Bool, compact: Bool,
+         detectEnum: Bool) {
         self.propertyDeclaration = propertyDeclaration
         self.objectDeclaration = objectDeclaration
         self.declarationSuffix = declarationSuffix
         self.snakeCase = snakeCase
         self.compact = compact
+        self.detectEnum = detectEnum
     }
     
     //commonPrefix(with:options:)
@@ -283,7 +289,9 @@ struct SwiftGenerator {
 
     mutating func prepareTranslated() {
         // Mark enums
-        markEnums()
+        if detectEnum {
+            markEnums()
+        }
         // Translate field name
         // Translate type
         // Translate comment

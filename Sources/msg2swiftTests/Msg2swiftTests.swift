@@ -63,7 +63,8 @@ uint8 field
                                        objectDeclaration: .class,
                                        declarationSuffix: .codable,
                                        snakeCase: true,
-                                       compact: false)
+                                       compact: false,
+                                       detectEnum: true)
         
         let parsed = try generator.parseMessageText(messageText)
         let preparsed: [SwiftGenerator.Parsedline] = [
@@ -92,7 +93,8 @@ uint8 field
                                        objectDeclaration: .class,
                                        declarationSuffix: .codable,
                                        snakeCase: true,
-                                       compact: false)
+                                       compact: false,
+                                       detectEnum: true)
         
         generator.parsed = try generator.parseMessageText(messageTextEnum)
         generator.markEnums()
@@ -136,7 +138,8 @@ float32 field_test # comment2
                                        objectDeclaration: .struct,
                                        declarationSuffix: .codable,
                                        snakeCase: true,
-                                       compact: false)
+                                       compact: false,
+                                       detectEnum: true)
         var code = try generator.processFile(name: "TestModel", messageText: message)
         XCTAssertEqual(code, """
 struct TestModel: Codable {
@@ -150,7 +153,8 @@ struct TestModel: Codable {
                                    objectDeclaration: .class,
                                    declarationSuffix: .encodable,
                                    snakeCase: true,
-                                   compact: true)
+                                   compact: true,
+                                   detectEnum: true)
         code = try generator.processFile(name: "TestModel", messageText: message)
         XCTAssertEqual(code, """
 class TestModel: Encodable {
@@ -163,7 +167,8 @@ class TestModel: Encodable {
                                    objectDeclaration: .class,
                                    declarationSuffix: .decodable,
                                    snakeCase: true,
-                                   compact: true)
+                                   compact: true,
+                                   detectEnum: true)
         code = try generator.processFile(name: "TestModel", messageText: message)
         XCTAssertEqual(code, """
 class TestModel: Decodable {
@@ -176,7 +181,8 @@ class TestModel: Decodable {
                                    objectDeclaration: .class,
                                    declarationSuffix: .codable,
                                    snakeCase: false,
-                                   compact: true)
+                                   compact: true,
+                                   detectEnum: true)
         code = try generator.processFile(name: "TestModel", messageText: message)
         XCTAssertEqual(code, """
 class TestModel: Codable {
@@ -194,10 +200,11 @@ uint8 POWER_SUPPLY_TECHNOLOGY_LIMN =
 """
         
         var generator = SwiftGenerator(propertyDeclaration: .let,
-                                   objectDeclaration: .class,
-                                   declarationSuffix: .codable,
-                                   snakeCase: false,
-                                   compact: true)
+                                       objectDeclaration: .class,
+                                       declarationSuffix: .codable,
+                                       snakeCase: false,
+                                       compact: true,
+                                       detectEnum: true)
         XCTAssertThrowsError(try generator.processFile(name: "BadFile", messageText: messageText), "Must be error message at line 2") { error in
             guard let error = error as? SwiftGeneratorError else {
                 XCTFail("Error is't SwiftGeneratorError type")
@@ -214,10 +221,11 @@ uint8 self
 """
         
         var generator = SwiftGenerator(propertyDeclaration: .let,
-                                   objectDeclaration: .struct,
-                                   declarationSuffix: .codable,
-                                   snakeCase: false,
-                                   compact: true)
+                                       objectDeclaration: .struct,
+                                       declarationSuffix: .codable,
+                                       snakeCase: false,
+                                       compact: true,
+                                       detectEnum: true)
         
         let code = try generator.processFile(name: "TestModel", messageText: messageText)
         XCTAssertEqual(code, """

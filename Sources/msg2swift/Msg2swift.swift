@@ -47,15 +47,20 @@ struct Msg2swift: ParsableCommand {
     @Flag(name: .long,
           inversion: .prefixedNo,
           exclusivity: .chooseLast,
-          help: ArgumentHelp(stringLiteral: #"Convert property name from "snake_case" to "camelCase""#))
+          help: ArgumentHelp(stringLiteral: #"Convert property names from "snake_case" to "camelCase""#))
     var snakeCase = true
     
-    @Flag(name: .shortAndLong, help: "Don't print processed file names.")
-    var silent = false
-
-    @Flag(name: .shortAndLong, help: ArgumentHelp("Compact generated code.",
-                                                  discussion: "Strip all comments and remove empty lines."))
+    @Flag(name: .shortAndLong, 
+          help: ArgumentHelp("Compact generated code.",
+                             discussion: "Strip all comments and remove empty lines."))
     var compact = false
+
+    @Flag(name: .long, 
+          inversion: .prefixedNo,
+          exclusivity: .chooseLast,
+          help: ArgumentHelp("Detect enums.",
+                             discussion: "Detect and group constants into Swift enum."))
+    var detectEnum = true
 
     @Option(name: .shortAndLong,
             help: ArgumentHelp("Object name.",
@@ -68,13 +73,18 @@ struct Msg2swift: ParsableCommand {
                                valueName: "path"))
     var outputDirectory: String?
 
+    @Flag(name: .shortAndLong, help: "Don't print processed file names.")
+    var silent = false
+
+
     mutating func run() throws {
         for url in file {
             var generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
                                            objectDeclaration: objectDeclaration,
                                            declarationSuffix: declarationSuffix,
                                            snakeCase: snakeCase,
-                                           compact: compact)
+                                           compact: compact,
+                                           detectEnum: detectEnum)
             let messageText = try String(contentsOf: url)
             let name = name ?? url.deletingPathExtension().lastPathComponent
             
