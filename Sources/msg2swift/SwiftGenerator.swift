@@ -84,19 +84,19 @@ struct SwiftGenerator {
     var needCodableKeys = false
     private let propertyDeclaration: PropertyDeclaration
     private let objectDeclaration: ObjectDeclaration
-    private let declarationSuffix: DeclarationSuffix
+    private let declarationSuffix: DeclarationProtocol
     private let snakeCase: Bool
     private let compact: Bool
     private let detectEnum: Bool
 
     init(propertyDeclaration: PropertyDeclaration,
          objectDeclaration: ObjectDeclaration,
-         declarationSuffix: DeclarationSuffix,
+         declarationProtocol: DeclarationProtocol,
          snakeCase: Bool, compact: Bool,
          detectEnum: Bool) {
         self.propertyDeclaration = propertyDeclaration
         self.objectDeclaration = objectDeclaration
-        self.declarationSuffix = declarationSuffix
+        self.declarationSuffix = declarationProtocol
         self.snakeCase = snakeCase
         self.compact = compact
         self.detectEnum = detectEnum
@@ -346,7 +346,7 @@ struct SwiftGenerator {
         }
     }
     
-    mutating func generateSwiftModel(name: String) -> String {
+    mutating func generateSwiftModel(name: String) -> [String] {
         var lines: [String] = []
         var currentEnumName = ""
         
@@ -402,10 +402,10 @@ struct SwiftGenerator {
         // Emit declaration close "}"
         lines.append("}")
         lines.append("")
-        return lines.joined(separator: "\n")
+        return lines
     }
 
-    mutating func processFile(name: String, messageText: String) throws -> String {
+    mutating func processFile(name: String, messageText: String) throws -> [String] {
         parsed = try parseMessageText(messageText)
         prepareTranslated()
         prepareCodableKeys()

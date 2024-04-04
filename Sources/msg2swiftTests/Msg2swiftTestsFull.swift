@@ -14,7 +14,7 @@ class Msg2swiftTestsFull: XCTestCase {
         
         var generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .struct,
-                                       declarationSuffix: .codable,
+                                       declarationProtocol: .codable,
                                        snakeCase: true,
                                        compact: true,
                                        detectEnum: true)
@@ -67,7 +67,7 @@ struct BatteryState: Codable {
 }
 
 """
-        let code = try generator.processFile(name: "BatteryState", messageText: messageText)
+        let code = try generator.processFile(name: "BatteryState", messageText: messageText).joined(separator: "\n")
         XCTAssertEqual(code, codeExpected)
     }
     
@@ -77,7 +77,7 @@ struct BatteryState: Codable {
         
         var generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .struct,
-                                       declarationSuffix: .codable,
+                                       declarationProtocol: .codable,
                                        snakeCase: true,
                                        compact: true,
                                        detectEnum: true)
@@ -112,7 +112,7 @@ struct CameraInfo: Codable {
 }
 
 """
-        let code = try generator.processFile(name: "CameraInfo", messageText: messageText)
+        let code = try generator.processFile(name: "CameraInfo", messageText: messageText).joined(separator: "\n")
         XCTAssertEqual(code, codeExpected)
     }
 

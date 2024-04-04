@@ -16,7 +16,7 @@ enum ObjectDeclaration: String, EnumerableFlag {
     case `class`
 }
 
-enum DeclarationSuffix: String, EnumerableFlag {
+enum DeclarationProtocol: String, EnumerableFlag {
     case codable = "Codable"
     case encodable = "Encodable"
     case decodable = "Decodable"
@@ -41,8 +41,8 @@ struct Msg2swift: ParsableCommand {
     var objectDeclaration: ObjectDeclaration = .struct
 
     @Flag(exclusivity: .exclusive,
-          help: ArgumentHelp("Model declaration suffix."))
-    var declarationSuffix: DeclarationSuffix = .codable
+          help: ArgumentHelp("Model declaration protocol."))
+    var declarationProtocol: DeclarationProtocol = .codable
     
     @Flag(name: .long,
           inversion: .prefixedNo,
@@ -79,15 +79,15 @@ struct Msg2swift: ParsableCommand {
 
     mutating func run() throws {
         for url in file {
-            var generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
-                                           objectDeclaration: objectDeclaration,
-                                           declarationSuffix: declarationSuffix,
-                                           snakeCase: snakeCase,
-                                           compact: compact,
-                                           detectEnum: detectEnum)
             let messageText = try String(contentsOf: url)
             let name = name ?? url.deletingPathExtension().lastPathComponent
             
+            var generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
+                                           objectDeclaration: objectDeclaration,
+                                           declarationProtocol: declarationProtocol,
+                                           snakeCase: snakeCase,
+                                           compact: compact,
+                                           detectEnum: detectEnum)
             let model = try generator.processFile(name: name, messageText: messageText)
             
             let outputDirectory = outputDirectory ?? url.deletingLastPathComponent().path
@@ -101,7 +101,8 @@ struct Msg2swift: ParsableCommand {
 
 
 """
-            try (header + model).write(to: outputURL, atomically: false, encoding: .utf8)
+            let text = model.joined(separator: "\n")
+            try (header + text).write(to: outputURL, atomically: false, encoding: .utf8)
             
             if !silent {
                 print("Created \(outputURL.path)")

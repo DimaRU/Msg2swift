@@ -61,7 +61,7 @@ uint8 field
     func testGenerator() throws {
         let generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .class,
-                                       declarationSuffix: .codable,
+                                       declarationProtocol: .codable,
                                        snakeCase: true,
                                        compact: false,
                                        detectEnum: true)
@@ -91,7 +91,7 @@ uint8 field
     func testMarkEnum() throws {
         var generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .class,
-                                       declarationSuffix: .codable,
+                                       declarationProtocol: .codable,
                                        snakeCase: true,
                                        compact: false,
                                        detectEnum: true)
@@ -136,11 +136,11 @@ float32 field_test # comment2
 """
         var generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .struct,
-                                       declarationSuffix: .codable,
+                                       declarationProtocol: .codable,
                                        snakeCase: true,
                                        compact: false,
                                        detectEnum: true)
-        var code = try generator.processFile(name: "TestModel", messageText: message)
+        var code = try generator.processFile(name: "TestModel", messageText: message).joined(separator: "\n")
         XCTAssertEqual(code, """
 struct TestModel: Codable {
     // Comment
@@ -151,11 +151,11 @@ struct TestModel: Codable {
         
         generator = SwiftGenerator(propertyDeclaration: .var,
                                    objectDeclaration: .class,
-                                   declarationSuffix: .encodable,
+                                   declarationProtocol: .encodable,
                                    snakeCase: true,
                                    compact: true,
                                    detectEnum: true)
-        code = try generator.processFile(name: "TestModel", messageText: message)
+        code = try generator.processFile(name: "TestModel", messageText: message).joined(separator: "\n")
         XCTAssertEqual(code, """
 class TestModel: Encodable {
     var fieldTest: Float
@@ -165,11 +165,11 @@ class TestModel: Encodable {
         
         generator = SwiftGenerator(propertyDeclaration: .var,
                                    objectDeclaration: .class,
-                                   declarationSuffix: .decodable,
+                                   declarationProtocol: .decodable,
                                    snakeCase: true,
                                    compact: true,
                                    detectEnum: true)
-        code = try generator.processFile(name: "TestModel", messageText: message)
+        code = try generator.processFile(name: "TestModel", messageText: message).joined(separator: "\n")
         XCTAssertEqual(code, """
 class TestModel: Decodable {
     var fieldTest: Float
@@ -179,11 +179,11 @@ class TestModel: Decodable {
         
         generator = SwiftGenerator(propertyDeclaration: .let,
                                    objectDeclaration: .class,
-                                   declarationSuffix: .codable,
+                                   declarationProtocol: .codable,
                                    snakeCase: false,
                                    compact: true,
                                    detectEnum: true)
-        code = try generator.processFile(name: "TestModel", messageText: message)
+        code = try generator.processFile(name: "TestModel", messageText: message).joined(separator: "\n")
         XCTAssertEqual(code, """
 class TestModel: Codable {
     let field_test: Float
@@ -201,7 +201,7 @@ uint8 POWER_SUPPLY_TECHNOLOGY_LIMN =
         
         var generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .class,
-                                       declarationSuffix: .codable,
+                                       declarationProtocol: .codable,
                                        snakeCase: false,
                                        compact: true,
                                        detectEnum: true)
@@ -222,12 +222,12 @@ uint8 self
         
         var generator = SwiftGenerator(propertyDeclaration: .let,
                                        objectDeclaration: .struct,
-                                       declarationSuffix: .codable,
+                                       declarationProtocol: .codable,
                                        snakeCase: false,
                                        compact: true,
                                        detectEnum: true)
         
-        let code = try generator.processFile(name: "TestModel", messageText: messageText)
+        let code = try generator.processFile(name: "TestModel", messageText: messageText).joined(separator: "\n")
         XCTAssertEqual(code, """
 struct TestModel: Codable {
     let `self`: UInt8
