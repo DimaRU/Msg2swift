@@ -9,7 +9,7 @@ let package = Package(
         .executable(name: "msg2swift", targets: ["msg2swift"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
     ],
     targets: [
         .executableTarget(
@@ -22,11 +22,7 @@ let package = Package(
             name: "msg2swiftTests",
             dependencies: ["msg2swift"],
             resources: [
-                .copy("Resource/BatteryState.msg"),
-                .copy("Resource/CameraInfo.msg"),
-                .copy("Resource/SetBool.srv"),
-                .copy("Resource/Trigger.srv"),
-                .copy("Resource/Empty.srv"),
+                .process("Resource"),
             ]
         ),
     ]
