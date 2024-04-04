@@ -2,7 +2,7 @@
 [![Platforms](https://img.shields.io/badge/Platforms-all-sucess)](https://img.shields.io/badge/Platforms-all-sucess)
 [![CI/CD](https://github.com/DimaRU/Msg2swift/actions/workflows/test.yml/badge.svg)](https://github.com/DimaRU/Msg2swift/actions/workflows/test.yml)
 
-# Msg2swift - Generate Swift models for ROS message files.
+# Msg2swift - Generate Swift models for ROS message and service files.
 
 
 ## Description
@@ -41,15 +41,16 @@ swift package plugin --allow-writing-to-package-directory msg2swift ../../msg/Ba
 USAGE: msg2swift [<options>] <file> ...
 
 ARGUMENTS:
-  <file>                  .msg file(s) to convert.
+  <file>                  .msg or .srv file(s) to convert.
 
 OPTIONS:
   --let/--var             Use var or let for model properties. (default: --let)
   --struct/--class        Struct or class declaration. (default: --struct)
   --codable/--encodable/--decodable
-                          Model declaration suffix. (default: --codable)
+                          Model declaration protocol. (default: --codable)
   --snake-case/--no-snake-case
-                          Convert property names from "snake_case" to "camelCase" (default: --snake-case)
+                          Convert property names from "snake_case" to
+                          "camelCase" (default: --snake-case)
   -c, --compact           Compact generated code.
         Strip all comments and remove empty lines.
   --detect-enum/--no-detect-enum

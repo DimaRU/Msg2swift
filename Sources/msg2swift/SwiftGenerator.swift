@@ -401,7 +401,6 @@ struct SwiftGenerator {
         }
         // Emit declaration close "}"
         lines.append("}")
-        lines.append("")
         return lines
     }
 

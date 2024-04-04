@@ -11,15 +11,13 @@ class Msg2swiftTestsFull: XCTestCase {
     func testConvertBatteryState() throws {
         let url = Bundle.module.url(forResource: "BatteryState", withExtension: "msg")
         let messageText = try String(contentsOf: url!)
-        
-        var generator = SwiftGenerator(propertyDeclaration: .let,
-                                       objectDeclaration: .struct,
-                                       declarationProtocol: .codable,
-                                       snakeCase: true,
-                                       compact: true,
-                                       detectEnum: true)
-
         let codeExpected = """
+//
+// BatteryState.swift
+//
+// This file was generated from ROS message file using msg2swift.
+//
+
 struct BatteryState: Codable {
     enum PowerSupplyStatus: UInt8, Codable {
         case unknown = 0
@@ -67,22 +65,30 @@ struct BatteryState: Codable {
 }
 
 """
-        let code = try generator.processFile(name: "BatteryState", messageText: messageText).joined(separator: "\n")
+
+        let code = try Msg2swift.messageFile(
+            name: "BatteryState",
+            messageText: messageText,
+            propertyDeclaration: .let,
+            objectDeclaration: .struct,
+            declarationProtocol: .codable,
+            snakeCase: true,
+            compact: true,
+            detectEnum: true)
         XCTAssertEqual(code, codeExpected)
     }
     
     func testConvertCameraInfo() throws {
         let url = Bundle.module.url(forResource: "CameraInfo", withExtension: "msg")
         let messageText = try String(contentsOf: url!)
-        
-        var generator = SwiftGenerator(propertyDeclaration: .let,
-                                       objectDeclaration: .struct,
-                                       declarationProtocol: .codable,
-                                       snakeCase: true,
-                                       compact: true,
-                                       detectEnum: true)
 
         let codeExpected = """
+//
+// CameraInfo.swift
+//
+// This file was generated from ROS message file using msg2swift.
+//
+
 struct CameraInfo: Codable {
     let header: Header
     let height: UInt32
@@ -112,7 +118,121 @@ struct CameraInfo: Codable {
 }
 
 """
-        let code = try generator.processFile(name: "CameraInfo", messageText: messageText).joined(separator: "\n")
+        let code = try Msg2swift.messageFile(
+            name: "CameraInfo",
+            messageText: messageText,
+            propertyDeclaration: .let,
+            objectDeclaration: .struct,
+            declarationProtocol: .codable,
+            snakeCase: true,
+            compact: true,
+            detectEnum: true)
+
+        XCTAssertEqual(code, codeExpected)
+    }
+
+    
+    func testConvertSetBoolSrv() throws {
+        let url = Bundle.module.url(forResource: "SetBool", withExtension: "srv")
+        let messageText = try String(contentsOf: url!)
+
+        let codeExpected = """
+//
+// SetBool.swift
+//
+// This file was generated from ROS service file using msg2swift.
+//
+
+struct SetBool {
+    struct Request: Encodable {
+        let data: Bool
+    }
+
+    struct Reply: Decodable {
+        let success: Bool
+        let message: String
+    }
+}
+
+"""
+        let code = try Msg2swift.serviceFile(
+            name: "SetBool",
+            messageText: messageText,
+            propertyDeclaration: .let,
+            objectDeclaration: .struct,
+            declarationProtocol: .codable,
+            snakeCase: true,
+            compact: true,
+            detectEnum: true)
+
+        XCTAssertEqual(code, codeExpected)
+    }
+
+    func testConvertTriggerSrv() throws {
+        let url = Bundle.module.url(forResource: "Trigger", withExtension: "srv")
+        let messageText = try String(contentsOf: url!)
+
+        let codeExpected = """
+//
+// Trigger.swift
+//
+// This file was generated from ROS service file using msg2swift.
+//
+
+struct Trigger {
+    struct Request: Encodable {
+    }
+
+    struct Reply: Decodable {
+        let success: Bool
+        let message: String
+    }
+}
+
+"""
+        let code = try Msg2swift.serviceFile(
+            name: "Trigger",
+            messageText: messageText,
+            propertyDeclaration: .let,
+            objectDeclaration: .struct,
+            declarationProtocol: .codable,
+            snakeCase: true,
+            compact: true,
+            detectEnum: true)
+
+        XCTAssertEqual(code, codeExpected)
+    }
+
+    func testConvertEmptySrv() throws {
+        let url = Bundle.module.url(forResource: "Empty", withExtension: "srv")
+        let messageText = try String(contentsOf: url!)
+
+        let codeExpected = """
+//
+// Empty.swift
+//
+// This file was generated from ROS service file using msg2swift.
+//
+
+struct Empty {
+    struct Request: Encodable {
+    }
+
+    struct Reply: Decodable {
+    }
+}
+
+"""
+        let code = try Msg2swift.serviceFile(
+            name: "Empty",
+            messageText: messageText,
+            propertyDeclaration: .let,
+            objectDeclaration: .struct,
+            declarationProtocol: .codable,
+            snakeCase: true,
+            compact: true,
+            detectEnum: true)
+
         XCTAssertEqual(code, codeExpected)
     }
 

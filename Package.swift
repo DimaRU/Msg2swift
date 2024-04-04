@@ -24,6 +24,9 @@ let package = Package(
             resources: [
                 .copy("Resource/BatteryState.msg"),
                 .copy("Resource/CameraInfo.msg"),
+                .copy("Resource/SetBool.srv"),
+                .copy("Resource/Trigger.srv"),
+                .copy("Resource/Empty.srv"),
             ]
         ),
     ]

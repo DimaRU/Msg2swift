@@ -146,7 +146,6 @@ struct TestModel: Codable {
     // Comment
     let fieldTest: Float // comment2
 }
-
 """)
         
         generator = SwiftGenerator(propertyDeclaration: .var,
@@ -160,7 +159,6 @@ struct TestModel: Codable {
 class TestModel: Encodable {
     var fieldTest: Float
 }
-
 """)
         
         generator = SwiftGenerator(propertyDeclaration: .var,
@@ -174,7 +172,6 @@ class TestModel: Encodable {
 class TestModel: Decodable {
     var fieldTest: Float
 }
-
 """)
         
         generator = SwiftGenerator(propertyDeclaration: .let,
@@ -188,7 +185,6 @@ class TestModel: Decodable {
 class TestModel: Codable {
     let field_test: Float
 }
-
 """)
         
     }
@@ -232,7 +228,6 @@ uint8 self
 struct TestModel: Codable {
     let `self`: UInt8
 }
-
 """)
     }
 }
