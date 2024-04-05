@@ -66,7 +66,7 @@ struct BatteryState: Codable {
 
 """
 
-        let code = try Msg2swift.messageFile(
+        let code = try SwiftGenerator.messageFile(
             name: "BatteryState",
             messageText: messageText,
             propertyDeclaration: .let,
@@ -118,7 +118,7 @@ struct CameraInfo: Codable {
 }
 
 """
-        let code = try Msg2swift.messageFile(
+        let code = try SwiftGenerator.messageFile(
             name: "CameraInfo",
             messageText: messageText,
             propertyDeclaration: .let,
@@ -155,7 +155,7 @@ struct SetBool {
 }
 
 """
-        let code = try Msg2swift.serviceFile(
+        let code = try SwiftGenerator.serviceFile(
             name: "SetBool",
             messageText: messageText,
             propertyDeclaration: .let,
@@ -190,7 +190,7 @@ struct Trigger {
 }
 
 """
-        let code = try Msg2swift.serviceFile(
+        let code = try SwiftGenerator.serviceFile(
             name: "Trigger",
             messageText: messageText,
             propertyDeclaration: .let,
@@ -223,8 +223,47 @@ struct Empty {
 }
 
 """
-        let code = try Msg2swift.serviceFile(
+        let code = try SwiftGenerator.serviceFile(
             name: "Empty",
+            messageText: messageText,
+            propertyDeclaration: .let,
+            objectDeclaration: .struct,
+            declarationProtocol: .codable,
+            snakeCase: true,
+            compact: true,
+            detectEnum: true)
+
+        XCTAssertEqual(code, codeExpected)
+    }
+
+    func testConvertBasicAction() throws {
+        let url = Bundle.module.url(forResource: "BasicAction", withExtension: "action")
+        let messageText = try String(contentsOf: url!)
+
+        let codeExpected = """
+//
+// BasicAction.swift
+//
+// This file was generated from ROS action file using msg2swift.
+//
+
+struct BasicAction {
+    struct Goal: Encodable {
+        let goal: String
+    }
+
+    struct Result: Decodable {
+        let result: String
+    }
+
+    struct Feedback: Decodable {
+        let feedback: String
+    }
+}
+
+"""
+        let code = try SwiftGenerator.actionFile(
+            name: "BasicAction",
             messageText: messageText,
             propertyDeclaration: .let,
             objectDeclaration: .struct,

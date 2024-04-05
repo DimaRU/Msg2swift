@@ -29,7 +29,7 @@ struct Msg2swift: ParsableCommand {
         abstract: "Generate Swift codable models from ROS message and service files.",
         version: "2.0.0")
     
-    @Argument(help: ".msg or .srv file(s) to convert.", transform: { URL(fileURLWithPath: $0) })
+    @Argument(help: ".msg or .srv or .action file(s) to convert.", transform: { URL(fileURLWithPath: $0) })
     var file: [URL]
     
     @Flag(exclusivity: .exclusive,
@@ -81,9 +81,11 @@ struct Msg2swift: ParsableCommand {
             let messageText = try String(contentsOf: url)
             let name = name ?? url.deletingPathExtension().lastPathComponent
             let text: String
-            if messageText.contains("---\n") {
-                // Service
-                text = try Msg2swift.serviceFile(
+            let separatorCount = messageText.matches(of: #/^---$/#.anchorsMatchLineEndings()).count
+            switch separatorCount {
+            case 0:
+                // msg file
+                text = try SwiftGenerator.messageFile(
                     name: name,
                     messageText: messageText,
                     propertyDeclaration: propertyDeclaration,
@@ -92,8 +94,9 @@ struct Msg2swift: ParsableCommand {
                     snakeCase: snakeCase,
                     compact: compact,
                     detectEnum: detectEnum)
-            } else {
-                text = try Msg2swift.messageFile(
+            case 1:
+                // srv file
+                text = try SwiftGenerator.serviceFile(
                     name: name,
                     messageText: messageText,
                     propertyDeclaration: propertyDeclaration,
@@ -102,6 +105,19 @@ struct Msg2swift: ParsableCommand {
                     snakeCase: snakeCase,
                     compact: compact,
                     detectEnum: detectEnum)
+            case 2:
+                // action file
+                text = try SwiftGenerator.actionFile(
+                    name: name,
+                    messageText: messageText,
+                    propertyDeclaration: propertyDeclaration,
+                    objectDeclaration: objectDeclaration,
+                    declarationProtocol: declarationProtocol,
+                    snakeCase: snakeCase,
+                    compact: compact,
+                    detectEnum: detectEnum)
+            default:
+                throw SwiftGeneratorError(message: "Wrong service file format")
             }
             
             let outputDirectory = outputDirectory ?? url.deletingLastPathComponent().path
@@ -111,76 +127,5 @@ struct Msg2swift: ParsableCommand {
                 print("Created \(outputURL.path)")
             }
         }
-    }
-    
-    static func messageFile(
-        name: String,
-        messageText: String,
-        propertyDeclaration: PropertyDeclaration,
-        objectDeclaration: ObjectDeclaration,
-        declarationProtocol: DeclarationProtocol,
-        snakeCase: Bool, compact: Bool,
-        detectEnum: Bool
-    ) throws -> String {
-        var generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
-                                       objectDeclaration: objectDeclaration,
-                                       declarationProtocol: declarationProtocol,
-                                       snakeCase: snakeCase,
-                                       compact: compact,
-                                       detectEnum: detectEnum)
-        let text = try generator.processFile(name: name, messageText: messageText).joined(separator: "\n")
-        
-        let header = """
-//
-// \(name).swift
-//
-// This file was generated from ROS message file using msg2swift.
-//
-
-
-"""
-        return header + text + "\n"
-    }
-    
-    static func serviceFile(
-        name: String,
-        messageText: String,
-        propertyDeclaration: PropertyDeclaration,
-        objectDeclaration: ObjectDeclaration,
-        declarationProtocol: DeclarationProtocol,
-        snakeCase: Bool, compact: Bool,
-        detectEnum: Bool
-    ) throws -> String {
-        let splittedMessage = messageText.split(separator: "---\n", omittingEmptySubsequences: false).map{ String($0) }
-        guard splittedMessage.count == 2 else {
-            throw SwiftGeneratorError(message: "Wrong service file format")
-        }
-        
-        var generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
-                                       objectDeclaration: objectDeclaration,
-                                       declarationProtocol: .encodable,
-                                       snakeCase: snakeCase,
-                                       compact: compact,
-                                       detectEnum: detectEnum)
-        let request = try generator.processFile(name: "Request", messageText: splittedMessage[0]).map{ "    " + $0 }.joined(separator: "\n")
-        
-        generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
-                                   objectDeclaration: objectDeclaration,
-                                   declarationProtocol: .decodable,
-                                   snakeCase: snakeCase,
-                                   compact: compact,
-                                   detectEnum: detectEnum)
-        let reply = try generator.processFile(name: "Reply", messageText: splittedMessage[1]).map{ "    " + $0 }.joined(separator: "\n")
-        
-        let header = """
-//
-// \(name).swift
-//
-// This file was generated from ROS service file using msg2swift.
-//
-
-
-"""
-        return header + "\(objectDeclaration.rawValue) \(name) {\n" + request + "\n\n" + reply + "\n}\n"
     }
 }

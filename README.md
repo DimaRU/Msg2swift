@@ -2,12 +2,12 @@
 [![Platforms](https://img.shields.io/badge/Platforms-all-sucess)](https://img.shields.io/badge/Platforms-all-sucess)
 [![CI/CD](https://github.com/DimaRU/Msg2swift/actions/workflows/test.yml/badge.svg)](https://github.com/DimaRU/Msg2swift/actions/workflows/test.yml)
 
-# Msg2swift - Generate Swift models for ROS message and service files.
+# Msg2swift - Generate Swift models for ROS message, service and action files.
 
 
 ## Description
 
-Msg2swift help you generate swift models from ROS .msg files. Intended for use with [CDRCodable](https://github.com/DimaRU/CDRCodable).  
+Msg2swift help you generate swift models from ROS .msg/.srv/.action files. Intended for use with [CDRCodable](https://github.com/DimaRU/CDRCodable).  
 In particular Msg2swift generates proper CodableKeys for encoding and decoding fixed-size arrays.
 
 
@@ -41,7 +41,7 @@ swift package plugin --allow-writing-to-package-directory msg2swift ../../msg/Ba
 USAGE: msg2swift [<options>] <file> ...
 
 ARGUMENTS:
-  <file>                  .msg or .srv file(s) to convert.
+  <file>                  .msg or .srv or .action file(s) to convert.
 
 OPTIONS:
   --let/--var             Use var or let for model properties. (default: --let)

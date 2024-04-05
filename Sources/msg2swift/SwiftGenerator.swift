@@ -410,4 +410,131 @@ struct SwiftGenerator {
         prepareCodableKeys()
         return generateSwiftModel(name: name)
     }
+    
+    
+    /// make code from msg file
+    static func messageFile(
+        name: String,
+        messageText: String,
+        propertyDeclaration: PropertyDeclaration,
+        objectDeclaration: ObjectDeclaration,
+        declarationProtocol: DeclarationProtocol,
+        snakeCase: Bool, compact: Bool,
+        detectEnum: Bool
+    ) throws -> String {
+        var generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
+                                       objectDeclaration: objectDeclaration,
+                                       declarationProtocol: declarationProtocol,
+                                       snakeCase: snakeCase,
+                                       compact: compact,
+                                       detectEnum: detectEnum)
+        let text = try generator.processFile(name: name, messageText: messageText).joined(separator: "\n")
+        
+        let header = """
+//
+// \(name).swift
+//
+// This file was generated from ROS message file using msg2swift.
+//
+
+
+"""
+        return header + text + "\n"
+    }
+    
+    
+    /// make code from srv file
+    static func serviceFile(
+        name: String,
+        messageText: String,
+        propertyDeclaration: PropertyDeclaration,
+        objectDeclaration: ObjectDeclaration,
+        declarationProtocol: DeclarationProtocol,
+        snakeCase: Bool, compact: Bool,
+        detectEnum: Bool
+    ) throws -> String {
+        let splittedMessage = messageText.split(separator: "---\n", omittingEmptySubsequences: false).map{ String($0) }
+        assert(splittedMessage.count == 2, "Wrong service file format")
+        
+        var generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
+                                       objectDeclaration: objectDeclaration,
+                                       declarationProtocol: .encodable,
+                                       snakeCase: snakeCase,
+                                       compact: compact,
+                                       detectEnum: detectEnum)
+        let request = try generator.processFile(name: "Request", messageText: splittedMessage[0]).map{ "    " + $0 }.joined(separator: "\n")
+        
+        generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
+                                   objectDeclaration: objectDeclaration,
+                                   declarationProtocol: .decodable,
+                                   snakeCase: snakeCase,
+                                   compact: compact,
+                                   detectEnum: detectEnum)
+        let reply = try generator.processFile(name: "Reply", messageText: splittedMessage[1]).map{ "    " + $0 }.joined(separator: "\n")
+        
+        let header = """
+//
+// \(name).swift
+//
+// This file was generated from ROS service file using msg2swift.
+//
+
+
+"""
+        return header + "\(objectDeclaration.rawValue) \(name) {\n" + request + "\n\n" + reply + "\n}\n"
+    }
+
+    /// make code from action file
+    static func actionFile(
+        name: String,
+        messageText: String,
+        propertyDeclaration: PropertyDeclaration,
+        objectDeclaration: ObjectDeclaration,
+        declarationProtocol: DeclarationProtocol,
+        snakeCase: Bool, compact: Bool,
+        detectEnum: Bool
+    ) throws -> String {
+        let splittedMessage = messageText.split(separator: "---\n", omittingEmptySubsequences: false).map{ String($0) }
+        assert(splittedMessage.count == 3, "Wrong action file format")
+        
+        var generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
+                                       objectDeclaration: objectDeclaration,
+                                       declarationProtocol: .encodable,
+                                       snakeCase: snakeCase,
+                                       compact: compact,
+                                       detectEnum: detectEnum)
+        let goal = try generator.processFile(name: "Goal", messageText: splittedMessage[0]).map{ "    " + $0 }.joined(separator: "\n")
+        
+        generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
+                                   objectDeclaration: objectDeclaration,
+                                   declarationProtocol: .decodable,
+                                   snakeCase: snakeCase,
+                                   compact: compact,
+                                   detectEnum: detectEnum)
+        let result = try generator.processFile(name: "Result", messageText: splittedMessage[1]).map{ "    " + $0 }.joined(separator: "\n")
+
+        generator = SwiftGenerator(propertyDeclaration: propertyDeclaration,
+                                   objectDeclaration: objectDeclaration,
+                                   declarationProtocol: .decodable,
+                                   snakeCase: snakeCase,
+                                   compact: compact,
+                                   detectEnum: detectEnum)
+        let feedback = try generator.processFile(name: "Feedback", messageText: splittedMessage[2]).map{ "    " + $0 }.joined(separator: "\n")
+
+        let header = """
+//
+// \(name).swift
+//
+// This file was generated from ROS action file using msg2swift.
+//
+
+
+"""
+        return header +
+        "\(objectDeclaration.rawValue) \(name) {\n" +
+        goal + "\n\n" +
+        result + "\n\n" +
+        feedback +
+        "\n}\n"
+    }
 }
