@@ -10,7 +10,7 @@ class Msg2swiftTestsFull: XCTestCase {
 
     func testConvertBatteryState() throws {
         let url = Bundle.module.url(forResource: "BatteryState", withExtension: "msg")
-        let messageText = try String(contentsOf: url!)
+        let messageText = try String(contentsOf: url!, encoding: .utf8)
         let codeExpected = """
 //
 // BatteryState.swift
@@ -80,7 +80,7 @@ struct BatteryState: Codable {
     
     func testConvertCameraInfo() throws {
         let url = Bundle.module.url(forResource: "CameraInfo", withExtension: "msg")
-        let messageText = try String(contentsOf: url!)
+        let messageText = try String(contentsOf: url!, encoding: .utf8)
 
         let codeExpected = """
 //
@@ -134,7 +134,7 @@ struct CameraInfo: Codable {
     
     func testConvertSetBoolSrv() throws {
         let url = Bundle.module.url(forResource: "SetBool", withExtension: "srv")
-        let messageText = try String(contentsOf: url!)
+        let messageText = try String(contentsOf: url!, encoding: .utf8)
 
         let codeExpected = """
 //
@@ -170,7 +170,7 @@ struct SetBool {
 
     func testConvertTriggerSrv() throws {
         let url = Bundle.module.url(forResource: "Trigger", withExtension: "srv")
-        let messageText = try String(contentsOf: url!)
+        let messageText = try String(contentsOf: url!, encoding: .utf8)
 
         let codeExpected = """
 //
@@ -205,7 +205,7 @@ struct Trigger {
 
     func testConvertEmptySrv() throws {
         let url = Bundle.module.url(forResource: "Empty", withExtension: "srv")
-        let messageText = try String(contentsOf: url!)
+        let messageText = try String(contentsOf: url!, encoding: .utf8)
 
         let codeExpected = """
 //
@@ -238,7 +238,7 @@ struct Empty {
 
     func testConvertBasicAction() throws {
         let url = Bundle.module.url(forResource: "BasicAction", withExtension: "action")
-        let messageText = try String(contentsOf: url!)
+        let messageText = try String(contentsOf: url!, encoding: .utf8)
 
         let codeExpected = """
 //
