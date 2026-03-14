@@ -24,7 +24,7 @@ enum DeclarationProtocol: String, EnumerableFlag {
 
 @main
 struct Msg2swift: ParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "msg2swift",
         abstract: "Generate Swift codable models from ROS message and service files.",
         version: "2.0.0")
@@ -78,7 +78,7 @@ struct Msg2swift: ParsableCommand {
     
     mutating func run() throws {
         for url in file {
-            let messageText = try String(contentsOf: url)
+            let messageText = try String(contentsOf: url, encoding: .utf8)
             let name = name ?? url.deletingPathExtension().lastPathComponent
             let text: String
             let separatorCount = messageText.matches(of: #/^---$/#.anchorsMatchLineEndings()).count
