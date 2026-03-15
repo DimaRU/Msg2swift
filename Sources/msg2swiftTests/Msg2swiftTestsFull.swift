@@ -95,26 +95,12 @@ struct CameraInfo: Codable {
     let width: UInt32
     let distortionModel: String
     let d: [Double]
-    let k: [Double]
-    let r: [Double]
-    let p: [Double]
+    let k: [9 of Double]
+    let r: [9 of Double]
+    let p: [12 of Double]
     let binningX: UInt32
     let binningY: UInt32
     let roi: RegionOfInterest
-
-    enum CodingKeys: Int, CodingKey {
-        case header = 1
-        case height = 2
-        case width = 3
-        case distortionModel = 4
-        case d = 5
-        case k = 0x90006
-        case r = 0x90007
-        case p = 0xc0008
-        case binningX = 9
-        case binningY = 10
-        case roi = 11
-    }
 }
 
 """

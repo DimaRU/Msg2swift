@@ -29,7 +29,9 @@ struct SwiftGeneratorError: Error {
 struct SwiftGenerator {
     enum DefinitionType: Equatable {
         case empty
-        case field(type: String, name: String, arrayCount: Int?, defaultValue: String)
+        case field(type: String, name: String, defaultValue: String)
+        case array(type: String, name: String, defaultValue: String)
+        case fixedArray(type: String, name: String, arrayCount: Int, defaultValue: String)
         case constant(type: String, name: String, value: String)
         case enumcase (type: String, enum: String, value: String)
     }
@@ -57,7 +59,9 @@ struct SwiftGenerator {
             self.trailing = trailing
             self.comment = comment
             switch definition {
-            case .field(type: let type, name: let name, arrayCount: _, defaultValue: _),
+            case .field(type: let type, name: let name, defaultValue: _),
+                    .array(type: let type, name: let name, defaultValue: _),
+                    .fixedArray(type: let type, name: let name, arrayCount: _, defaultValue: _),
                     .constant(type: let type, name: let name, value: _):
                 self.name = name
                 self.type = type
@@ -80,8 +84,6 @@ struct SwiftGenerator {
     }
     
     var parsed: [Parsedline] = []
-    var keyList: [(name: String, count: Int)] = []
-    var needCodableKeys = false
     private let propertyDeclaration: PropertyDeclaration
     private let objectDeclaration: ObjectDeclaration
     private let declarationSuffix: DeclarationProtocol
@@ -127,16 +129,20 @@ struct SwiftGenerator {
                                    omittingEmptySubsequences: true)
         let defaultValue = parts.count == 3 ? parts[2].trimmingCharacters(in: .whitespaces) : ""
         if let arrayDef = parts[0].firstMatch(of: #/\[\d*\]$/#) {
-            let arrayCount = Int(String(arrayDef.output).dropFirst().dropLast()) ?? 0
-            return .field(type: parts[0].replacingCharacters(in: arrayDef.range, with: ""),
-                          name: String(parts[1]), 
-                          arrayCount: arrayCount,
-                          defaultValue: defaultValue)
+            if let arrayCount = Int(String(arrayDef.output).dropFirst().dropLast()) {
+                return .fixedArray(type: parts[0].replacingCharacters(in: arrayDef.range, with: ""),
+                              name: String(parts[1]),
+                              arrayCount: arrayCount,
+                              defaultValue: defaultValue)
+            } else {
+                return .array(type: parts[0].replacingCharacters(in: arrayDef.range, with: ""),
+                              name: String(parts[1]),
+                              defaultValue: defaultValue)
+            }
         }
         
         return .field(type: String(parts[0]),
                       name: String(parts[1]), 
-                      arrayCount: nil,
                       defaultValue: defaultValue)
     }
     
@@ -264,15 +270,22 @@ struct SwiftGenerator {
         return convertFromSnakeCase(name)
     }
 
-    private func translate(type: String, arrayCount: Int?) -> String {
+    private func translate(type: String) -> String {
         var translated = String(type.split(separator: "/", omittingEmptySubsequences: true).last!)
-        translated =  SwiftBuiltins[translated] ?? translated
-        if arrayCount != nil {
-            translated = "[\(translated)]"
-        }
+        translated = SwiftBuiltins[translated] ?? translated
         return translated
     }
 
+    private func translateArray(type: String, arrayCount: Int?) -> String {
+        var translated = String(type.split(separator: "/", omittingEmptySubsequences: true).last!)
+        translated = SwiftBuiltins[translated] ?? translated
+        if let arrayCount {
+            return "[\(arrayCount) of \(translated)]"
+        } else {
+            return "[\(translated)]"
+        }
+    }
+    
     private func translate(comment: Substring) -> Substring {
         guard !comment.isEmpty else { return comment }
         if comment.allSatisfy({ $0 == "#" }), comment.count >= 3 {
@@ -298,14 +311,20 @@ struct SwiftGenerator {
         for i in parsed.indices {
             parsed[i].comment = translate(comment: parsed[i].comment)
             switch parsed[i].definition {
-            case .field(type: _, name: _, arrayCount: let arrayCount, defaultValue: _):
-                parsed[i].type = translate(type: parsed[i].type, arrayCount: arrayCount)
+            case .field(type: _, name: _, defaultValue: _):
+                parsed[i].type = translate(type: parsed[i].type)
+                parsed[i].name = translate(name: parsed[i].name)
+            case .array(type: _, name: _, defaultValue: _):
+                parsed[i].type = translateArray(type: parsed[i].type, arrayCount: nil)
+                parsed[i].name = translate(name: parsed[i].name)
+            case .fixedArray(type: _, name: _, arrayCount: let arrayCount, defaultValue: _):
+                parsed[i].type = translateArray(type: parsed[i].type, arrayCount: arrayCount)
                 parsed[i].name = translate(name: parsed[i].name)
             case .constant(type: _, name: _, value: _):
-                parsed[i].type = translate(type: parsed[i].type, arrayCount: nil)
+                parsed[i].type = translate(type: parsed[i].type)
                 parsed[i].name = translate(name: parsed[i].name)
             case .enumcase(type: let type, enum: let `enum`, value: let value):
-                parsed[i].type = translate(type: parsed[i].type, arrayCount: nil)
+                parsed[i].type = translate(type: parsed[i].type)
                 parsed[i].name = translate(name: parsed[i].name.lowercased())
                 if snakeCase {
                     let translated = convertFromSnakeCase(`enum`.lowercased()).firstUppercased
@@ -330,21 +349,6 @@ struct SwiftGenerator {
         }
     }
     
-    mutating func prepareCodableKeys() {
-        var count = 1
-        for line in parsed {
-            guard case .field(type: _, name: _, arrayCount: let arrayCount, defaultValue: _) = line.definition else {
-                continue
-            }
-            if let arrayCount, arrayCount > 0 {
-                keyList.append((name: line.name, count: arrayCount << 16 + count))
-                needCodableKeys = true
-            } else {
-                keyList.append((name: line.name, count: count))
-            }
-            count += 1
-        }
-    }
     
     mutating func generateSwiftModel(name: String) -> [String] {
         var lines: [String] = []
@@ -365,7 +369,7 @@ struct SwiftGenerator {
                 checkEmitCloseEnum()
                 guard !compact else { continue }
                 line = ""
-            case .field:
+            case .field, .array, .fixedArray:
                 checkEmitCloseEnum()
                 line = "\(propertyDeclaration) \(p.name.quoted): \(p.type)"
             case .constant(type: _, name: _, value: let value):
@@ -386,19 +390,6 @@ struct SwiftGenerator {
             }
         }
         
-        // Emit codable keys, if need
-        if needCodableKeys {
-            lines.append("")
-            lines.append("    enum CodingKeys: Int, CodingKey {")
-            for (name, count) in keyList {
-                if count < 100 {
-                    lines.append("        case \(name.quoted) = \(count)")
-                } else {
-                    lines.append("        case \(name.quoted) = 0x\(String(count, radix: 16))")
-                }
-            }
-            lines.append("    }")
-        }
         // Emit declaration close "}"
         lines.append("}")
         return lines
@@ -407,7 +398,6 @@ struct SwiftGenerator {
     mutating func processFile(name: String, messageText: String) throws -> [String] {
         parsed = try parseMessageText(messageText)
         prepareTranslated()
-        prepareCodableKeys()
         return generateSwiftModel(name: name)
     }
     

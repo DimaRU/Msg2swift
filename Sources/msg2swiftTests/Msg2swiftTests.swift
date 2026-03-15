@@ -68,18 +68,18 @@ uint8 field
         
         let parsed = try generator.parseMessageText(messageText)
         let preparsed: [SwiftGenerator.Parsedline] = [
-            .init(leading: "", definition: .field(type: "int32", name: "unbounded_integer_array", arrayCount: Optional(0), defaultValue: ""), trailing: "          ", comment: "# comment"),
-            .init(leading: "", definition: .field(type: "int32", name: "five_integers_array", arrayCount: Optional(5), defaultValue: ""), trailing: "", comment: ""),
-            .init(leading: "   ", definition: .field(type: "int32", name: "up_to_five_integers_array", arrayCount: Optional(0), defaultValue: ""), trailing: "  ", comment: "# comment"),
-            .init(leading: "", definition: .field(type: "string", name: "string_of_unbounded_size", arrayCount: nil, defaultValue: ""), trailing: "", comment: ""),
-            .init(leading: "", definition: .field(type: "string", name: "up_to_ten_characters_string", arrayCount: nil, defaultValue: ""), trailing: "", comment: ""),
-            .init(leading: "", definition: .field(type: "string", name: "up_to_five_unbounded_strings", arrayCount: Optional(0), defaultValue: ""), trailing: "", comment: ""),
-            .init(leading: "", definition: .field(type: "string", name: "unbounded_array_of_strings_up_to_ten_characters_each", arrayCount: Optional(0), defaultValue: ""), trailing: "", comment: ""),
-            .init(leading: "", definition: .field(type: "string", name: "up_to_five_strings_up_to_ten_characters_each", arrayCount: Optional(0), defaultValue: ""), trailing: "", comment: ""),
-            .init(leading: "", definition: .field(type: "uint8", name: "x", arrayCount: nil, defaultValue: "42"), trailing: "", comment: ""),
-            .init(leading: "", definition: .field(type: "int16", name: "y", arrayCount: nil, defaultValue: "-2000"), trailing: "", comment: ""),
-            .init(leading: "", definition: .field(type: "string", name: "full_name", arrayCount: nil, defaultValue: "\"John Doe\""), trailing: "", comment: ""),
-            .init(leading: "", definition: .field(type: "int32", name: "samples", arrayCount: Optional(0), defaultValue: "[-200, -100, 0, 100, 200]"), trailing: "", comment: "#comment"),
+            .init(leading: "", definition: .array(type: "int32", name: "unbounded_integer_array", defaultValue: ""), trailing: "          ", comment: "# comment"),
+            .init(leading: "", definition: .fixedArray(type: "int32", name: "five_integers_array", arrayCount: 5, defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "   ", definition: .array(type: "int32", name: "up_to_five_integers_array", defaultValue: ""), trailing: "  ", comment: "# comment"),
+            .init(leading: "", definition: .field(type: "string", name: "string_of_unbounded_size", defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "string", name: "up_to_ten_characters_string", defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "", definition: .array(type: "string", name: "up_to_five_unbounded_strings", defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "", definition: .array(type: "string", name: "unbounded_array_of_strings_up_to_ten_characters_each", defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "", definition: .array(type: "string", name: "up_to_five_strings_up_to_ten_characters_each", defaultValue: ""), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "uint8", name: "x", defaultValue: "42"), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "int16", name: "y", defaultValue: "-2000"), trailing: "", comment: ""),
+            .init(leading: "", definition: .field(type: "string", name: "full_name", defaultValue: "\"John Doe\""), trailing: "", comment: ""),
+            .init(leading: "", definition: .array(type: "int32", name: "samples", defaultValue: "[-200, -100, 0, 100, 200]"), trailing: "", comment: "#comment"),
             .init(leading: "", definition: .constant(type: "int32", name: "X", value: "123"), trailing: "", comment: ""),
             .init(leading: "", definition: .constant(type: "int32", name: "Y", value: "-123"), trailing: "", comment: ""),
             .init(leading: "", definition: .constant(type: "string", name: "FOO", value: "\"foo\""), trailing: "", comment: ""),
@@ -124,7 +124,7 @@ uint8 field
             .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_TECHNOLOGY", value: "5"), trailing: "", comment: "", type: "uint8", name: "NICD"),
             .init(leading: "", definition: .enumcase(type: "uint8", enum: "POWER_SUPPLY_TECHNOLOGY", value: "6"), trailing: "", comment: "", type: "uint8", name: "LIMN"),
             .init(leading: "", definition: .constant(type: "uint8", name: "SOME_CONST", value: "6"), trailing: "", comment: "", type: "uint8", name: "SOME_CONST"),
-            .init(leading: "", definition: .field(type: "uint8", name: "field", arrayCount: nil, defaultValue: ""), trailing: "", comment: "", type: "uint8", name: "field"),
+            .init(leading: "", definition: .field(type: "uint8", name: "field", defaultValue: ""), trailing: "", comment: "", type: "uint8", name: "field"),
         ]
         XCTAssertEqual(generator.parsed, preparsed)
     }
