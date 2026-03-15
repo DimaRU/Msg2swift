@@ -26,7 +26,7 @@ brew install DimaRU/formulae/msg2swift
 When you add [CDRCodable](https://github.com/DimaRU/CDRCodable) dependency to your project:
 
 ```swift
-.package(url: "https://github.com/DimaRU/CDRCodable", from: "1.0.0")
+.package(url: "https://github.com/DimaRU/CDRCodable", from: "2.0.0")
 ```
 you may use msg2swift SPM command line plugin:
 
@@ -75,4 +75,3 @@ https://github.com/DimaRU/Msg2swift.git
 cd Msg2swift
 swift build
 ```
-
